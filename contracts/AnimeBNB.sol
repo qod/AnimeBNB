@@ -486,7 +486,7 @@ contract AnimeBNBDividendTracker is DividendPayingToken, Ownable {
     }
 
     function excludeFromDividends(address account) external onlyOwner {
-    	require(!excludedFromDividends[account]);
+    	require(!excludedFromDividends[account], "ANB: Already excluded");  // Kregethus: temp to see if this is the cause
     	excludedFromDividends[account] = true;
 
     	_setBalance(account, 0);

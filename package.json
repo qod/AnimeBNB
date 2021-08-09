@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.2",
+    "node-fetch": "^2.6.1",
     "truffle-contract-size": "^2.0.1"
   }
 }

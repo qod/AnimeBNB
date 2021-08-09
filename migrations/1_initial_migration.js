@@ -1,10 +1,4 @@
-const IterableMapping = artifacts.require('./IterableMapping.sol');
-const AnimeBNB = artifacts.require('./AnimeBNB.sol');
-
+var Migrations = artifacts.require("Migrations.sol");
 module.exports = function(deployer) {
-    deployer.deploy(IterableMapping).then(() => {
-		deployer.link(IterableMapping, AnimeBNB);
-		return deployer.deploy(AnimeBNB);
-	});
-		
-}
+  deployer.deploy(Migrations);
+};

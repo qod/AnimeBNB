@@ -38,12 +38,12 @@ contract AnimeBNB is ERC20, Ownable {
 	uint256 public gasForProcessing = 300000;
 
 	// timestamp for when the token can be traded freely on PancakeSwap
-	uint256 public immutable tradingEnabledTimestamp = 1628448600; //Aug 1, 13:00 GMT, 2021
+	uint256 public immutable tradingEnabledTimestamp = 1628448600; // TODO
 
 	// exclude from fees and max transaction amount
 	mapping (address => bool) private _isExcludedFromFees;
 
-	// addresses that can make transfers before presale is over
+	// addresses that can make transfers before trading starts
 	mapping (address => bool) private canTransferBeforeTradingIsEnabled;
 
 	mapping (address => bool) private DevWallets;
@@ -112,7 +112,7 @@ contract AnimeBNB is ERC20, Ownable {
         _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
 
         // locked wallets (transfer function will not allow sale or send to another wallet until preset time.)
-		DevWallets[0x2Bc8055223c0424CB91DC0D3fff6C031Afb2ac77] = true; // Marketing (To be changed to new Marketing wallet later) *Kregethus
+		DevWallets[0x2Bc8055223c0424CB91DC0D3fff6C031Afb2ac77] = true; // Marketing TODO
 		
 		// exclude from receiving dividends
         dividendTracker.excludeFromDividends(address(dividendTracker));
@@ -124,7 +124,7 @@ contract AnimeBNB is ERC20, Ownable {
         excludeFromFees(liquidityWallet, true);
         excludeFromFees(address(this), true);
 
-        // enable owner and pre-sale wallet to send tokens before presales are over
+        // enable owner to send tokens before trading starts
         canTransferBeforeTradingIsEnabled[owner()] = true;
 
         /*
@@ -301,8 +301,8 @@ contract AnimeBNB is ERC20, Ownable {
         if(!tradingIsEnabled) {
             require(canTransferBeforeTradingIsEnabled[from], "ANB: Trading is disabled");
         }
-        if(!MarketingWalletUnlocked) {
-            require(!DevWallets[from], "ANB: Unlocks 03/01/2022");
+        if(!MarketingWalletUnlocked) { // Stops the marketing wallet from sending or selling until preset time
+            require(!DevWallets[from], "ANB: Unlocks 03/01/2022"); 
         }
 
         if(amount == 0) {
@@ -486,7 +486,7 @@ contract AnimeBNBDividendTracker is DividendPayingToken, Ownable {
     }
 
     function excludeFromDividends(address account) external onlyOwner {
-    	require(!excludedFromDividends[account], "ANB: Already excluded");  // Kregethus: temp to see if this is the cause
+    	require(!excludedFromDividends[account], "ANB: Already excluded");
     	excludedFromDividends[account] = true;
 
     	_setBalance(account, 0);

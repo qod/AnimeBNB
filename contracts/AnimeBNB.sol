@@ -37,8 +37,8 @@ contract AnimeBNB is ERC20, Ownable {
 	// use by default 300,000 gas to process auto-claiming dividends
 	uint256 public gasForProcessing = 300000;
 
-	// timestamp for when the token can be traded freely on PancakeSwap
-	uint256 public immutable tradingEnabledTimestamp = 1628448600; // TODO
+	// timestamp for when the token can be traded.  August 12, 2021 1:00:00 PM GMT
+	uint256 public immutable tradingEnabledTimestamp = 1628773200;
 
 	// exclude from fees and max transaction amount
 	mapping (address => bool) private _isExcludedFromFees;
@@ -66,6 +66,8 @@ contract AnimeBNB is ERC20, Ownable {
     event PreSaleWalletUpdated(address indexed newPreSaleWallet, address indexed oldPreSaleWallet);	
 
     event GasForProcessingUpdated(uint256 indexed newValue, uint256 indexed oldValue);
+	
+	event SetBalance(address payable account, uint256 newBalance);
 
     event SwapAndLiquify(
         uint256 tokensSwapped,
@@ -94,8 +96,7 @@ contract AnimeBNB is ERC20, Ownable {
         BNBRewardsFee = _BNBRewardsFee;
         liquidityFee = _liquidityFee;
         totalFees = _BNBRewardsFee.add(_liquidityFee);
-    	MarketingUnlockedTimestamp = 1646100000; // Epoch time when Marketing wallet is unlocked 03/01/2022
-
+    	MarketingUnlockedTimestamp = 1647093600; // Time when the marketing wallet is unlocked 03/12/2022
 
     	dividendTracker = new AnimeBNBDividendTracker();
 
@@ -112,7 +113,7 @@ contract AnimeBNB is ERC20, Ownable {
         _setAutomatedMarketMakerPair(_uniswapV2Pair, true);
 
         // locked wallets (transfer function will not allow sale or send to another wallet until preset time.)
-		DevWallets[0x2Bc8055223c0424CB91DC0D3fff6C031Afb2ac77] = true; // Marketing TODO
+		DevWallets[0xeFe222Bfc476ADc0e91D6F67ef5a48372603c1b1] = true; // Marketing
 		
 		// exclude from receiving dividends
         dividendTracker.excludeFromDividends(address(dividendTracker));
@@ -286,7 +287,6 @@ contract AnimeBNB is ERC20, Ownable {
         return block.timestamp >= MarketingUnlockedTimestamp; // Checks to see if the Marketing wallet is unlocked.
     }
 
-
     function _transfer(
         address from,
         address to,
@@ -393,7 +393,7 @@ contract AnimeBNB is ERC20, Ownable {
         uint256 initialBalance = address(this).balance;
 
         // swap tokens for ETH
-        swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
+        swapTokensForEth(half);
 
         // how much ETH did we just swap into?
         uint256 newBalance = address(this).balance.sub(initialBalance);
@@ -590,11 +590,12 @@ contract AnimeBNBDividendTracker is DividendPayingToken, Ownable {
     	if(newBalance >= minimumTokenBalanceForDividends) {
             _setBalance(account, newBalance);
     		tokenHoldersMap.set(account, newBalance);
+			emit SetBalance(account, newBalance);										
     	}
     	else {
             _setBalance(account, 0);
     		tokenHoldersMap.remove(account);
-    	}
+			emit SetBalance(account, 0)
 
     	processAccount(account, true);
     }

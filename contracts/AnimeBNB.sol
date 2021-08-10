@@ -67,8 +67,6 @@ contract AnimeBNB is ERC20, Ownable {
 
     event GasForProcessingUpdated(uint256 indexed newValue, uint256 indexed oldValue);
 	
-	event SetBalance(address payable account, uint256 newBalance);
-
     event SwapAndLiquify(
         uint256 tokensSwapped,
         uint256 ethReceived,
@@ -97,6 +95,7 @@ contract AnimeBNB is ERC20, Ownable {
         liquidityFee = _liquidityFee;
         totalFees = _BNBRewardsFee.add(_liquidityFee);
     	MarketingUnlockedTimestamp = 1647093600; // Time when the marketing wallet is unlocked 03/12/2022
+
 
     	dividendTracker = new AnimeBNBDividendTracker();
 
@@ -394,7 +393,7 @@ contract AnimeBNB is ERC20, Ownable {
 
         // swap tokens for ETH
         swapTokensForEth(half);
-
+		
         // how much ETH did we just swap into?
         uint256 newBalance = address(this).balance.sub(initialBalance);
 
@@ -469,7 +468,7 @@ contract AnimeBNBDividendTracker is DividendPayingToken, Ownable {
 
     event ExcludeFromDividends(address indexed account);
     event ClaimWaitUpdated(uint256 indexed newValue, uint256 indexed oldValue);
-
+	event SetBalance(address payable account, uint256 newBalance);
     event Claim(address indexed account, uint256 amount, bool indexed automatic);
 
     constructor() public DividendPayingToken("AnimeBNB_Dividend_Tracker", "AnimeBNB_Dividend_Tracker") {
@@ -590,12 +589,13 @@ contract AnimeBNBDividendTracker is DividendPayingToken, Ownable {
     	if(newBalance >= minimumTokenBalanceForDividends) {
             _setBalance(account, newBalance);
     		tokenHoldersMap.set(account, newBalance);
-			emit SetBalance(account, newBalance);										
+			emit SetBalance(account, newBalance);
     	}
     	else {
             _setBalance(account, 0);
     		tokenHoldersMap.remove(account);
-			emit SetBalance(account, 0)
+			emit SetBalance(account, 0);
+    	}
 
     	processAccount(account, true);
     }
